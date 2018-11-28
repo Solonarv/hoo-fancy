@@ -17,8 +17,8 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Hoo
-                     , Hoo.Cls
-                     , Hoo.Proto
+                     , Hoo.Class
+                     , Hoo.TypeLevel
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.10 && <5
