@@ -18,6 +18,7 @@ cabal-version:       >=1.10
 library
   exposed-modules:     Hoo
                      , Hoo.Class
+                     , Hoo.Examples
                      , Hoo.TypeLevel
   -- other-modules:       
   -- other-extensions:    
