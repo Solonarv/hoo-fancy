@@ -1,4 +1,11 @@
+{-# LANGUAGE OverloadedLabels #-}
 module Hoo.Examples where
+
+import Data.Vinyl.Core
+
+import Hoo.Named
+import Hoo.Operations
+import Hoo.Class
 
 -- | A simple example class. It has one field, @val@, which holds a
 -- mutable value.

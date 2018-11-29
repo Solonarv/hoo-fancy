@@ -19,7 +19,10 @@ library
   exposed-modules:     Hoo
                      , Hoo.Class
                      , Hoo.Examples
-                     , Hoo.TypeLevel
+                     , Hoo.Monad
+                     , Hoo.MutRef
+                     , Hoo.Named
+                     , Hoo.Operations
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.10 && <5
@@ -30,4 +33,4 @@ library
                        TypeFamilyDependencies TypeOperators PolyKinds RankNTypes
                        TypeApplications ScopedTypeVariables ConstraintKinds FunctionalDependencies
                        MultiParamTypeClasses NamedFieldPuns LambdaCase BangPatterns DerivingStrategies
-                       GeneralizedNewtypeDeriving
+                       GeneralizedNewtypeDeriving RoleAnnotations
