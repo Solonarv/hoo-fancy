@@ -1,6 +1,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Hoo.Named
   ( Named(..)
+  , UnNamed, NameOf
   , type FindNamed
   , Label(..)
   ) where
@@ -12,6 +13,13 @@ import GHC.OverloadedLabels
   
 -- | The type of named things (e.g. methods, fields).
 data Named e = Symbol :# e
+
+-- | Unwrap a @'Named'@
+type family UnNamed n where
+  UnNamed (s :# e) = e
+
+type family NameOf n where
+  NameOf (s :# e) = s
 
 -- | Find a named thing in a list of named things.
 -- >>> :kind! FindNamed "field" "foo" '["foo" :# Int, "bar" :: Bool]

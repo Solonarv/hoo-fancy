@@ -1,3 +1,4 @@
+{-# LANGUAGE UndecidableInstances #-}
 module Hoo.Operations
   ( module Hoo.Operations
   , module Hoo.Monad
@@ -48,7 +49,7 @@ new cls holes = Object cls . toARec <$> fields
 -- @
 -- >>> pair #. #fst
 -- 0
-infix 2 #.
+infixl 9 #.
 (#.) :: forall s fs ms f t. (f ~ FindNamed "field" s fs, f ~ (s :# t), NatToInt (RIndex f fs)) => Object (Sig fs ms) -> Label s -> ReadResult t
 o #. l = case aget @f (objFields o) of
   FVImmut v -> v
@@ -66,3 +67,28 @@ o # _ = case aget @f (objFields o) of FVMutRef mr -> mr
 -- as every field in the class is present in the object.
 as :: (IndexWitnesses (RImage fs1 fs0), NatToInt (RLength fs1)) => Object (Sig fs0 ms0) -> Class (Sig fs1 ms1) -> Object (Sig fs1 ms1)
 as o0 c1 = Object c1 (rcast (objFields o0))
+
+getClass :: Object sig -> Class sig
+getClass = objClass
+
+type RElem' r rs = RElem r rs (RIndex r rs)
+
+-- | Overloaded @'call'@ operator.
+class (s ~ NameOf m, m ~ FindNamed "method" s ms) => Call t m fs ms s x | m fs ms -> x, m -> s where
+  call :: forall r. MethodType (Sig fs ms) (UnNamed m) ~ (x -> r) => t (Sig fs ms) -> Label s -> r
+
+instance ((s :# Static args ret) ~ FindNamed "method" s ms, RElem' (s :# Static args ret) ms) => Call Class (s :# Static args ret) fs ms s (Class (Sig fs ms)) where
+  call cls _ = case rget @(s :# Static args ret) (clsMethods cls) of
+    _ := method -> method cls
+
+instance Call Class (s :# Static args ret) fs ms s x => Call Object (s :# Static args ret) fs ms s x where
+  call o l = call (getClass o) l
+
+instance ((s :# Inst args ret) ~ FindNamed "method" s ms, RElem' (s :# Inst args ret) ms) => Call Object (s :# Inst args ret) fs ms s (Object (Sig fs ms)) where
+  call o _ = case rget @(s :# Inst args ret) (clsMethods (objClass o)) of
+    _ := method -> method o
+
+-- | Infix alias for @'call'@, useful for methods that take no arguments.
+infixl 8 .!
+(.!) :: (m ~ FindNamed "method" s ms, Call t m fs ms s x, MethodType (Sig fs ms) (UnNamed m) ~ (x -> r)) => t (Sig fs ms) -> Label s -> r
+(.!) = call

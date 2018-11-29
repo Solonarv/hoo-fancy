@@ -28,7 +28,7 @@ type MutMonoid a = Sig '[ "val" :# Mut HasDefault a]
 clsMutMonoid :: Monoid a => Class (MutMonoid a)
 clsMutMonoid = Class (  Default #val mempty
                      :& RNil)
-                     ( #mempty := (\_ -> return mempty)
+                     (  #mempty := (\_ -> return mempty)
                      :& #mappend := (\_ x y -> do
                         xVal <- x #. #val
                         yVal <- y #. #val
@@ -45,6 +45,15 @@ type ImmutMonoid a = Sig '[ "val" :# Immut a]
                           , "mappend" :# Static '[Self Object, Self Object] (Self Object)
                           , "eatr" :# Inst '[Self Object] (Self Object)
                           , "eatl" :# Inst '[Self Object] (Self Object)
-                          , "of" :# Static '[Poly a] (Self Object)
+                          , "wrap" :# Static '[Poly a] (Self Object)
                           , "unwrap" :# Inst '[] (Poly a)
                           ]
+clsImmutMonoid :: Monoid a => Class (ImmutMonoid a)
+clsImmutMonoid = Class (rec1 $ MustFill #val)
+                       (  #mempty  := (\cls -> call cls #wrap mempty)
+                       :& #mappend := (\cls x y -> call cls #wrap (x #. #val <> y #. #val))
+                       :& #eatr    := (\self other -> call self #mappend self other)
+                       :& #eatl    := (\self other -> call other #eatr self)
+                       :& #wrap    := (\cls a -> new cls $ rec1 (#val := a))
+                       :& #unwrap  := (\self -> return (self #. #val))
+                       :& RNil)
